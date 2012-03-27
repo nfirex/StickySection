@@ -3,7 +3,6 @@ package com.wagado.widget;
 import java.util.Iterator;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,7 +17,7 @@ public class StickySectionListAdapter extends SectionListAdapter {
 	protected final int mHeaderLayoutId;
 	protected final int mTitleTextViewId;
 
-	private int mCurrentSection;
+	private int mCurrentSection = -1;
 	
 
 	public StickySectionListAdapter(Context context, BaseAdapter adapter, SectionListAdapter.SectionDetector detector) {
@@ -58,8 +57,6 @@ public class StickySectionListAdapter extends SectionListAdapter {
 		final int section = getSectionPosition(position);
 		if (mCurrentSection != section) {
 			mCurrentSection = section;
-			Log.d(TAG, "position = " + position + "; section = " + section);
-			
 
 			final View sticker = getView(mCurrentSection, null, null);
 			if (sticker != null) {
@@ -76,13 +73,13 @@ public class StickySectionListAdapter extends SectionListAdapter {
 		while (iterator.hasNext()) {
 			final int value2 = iterator.next();
 
-			if (position >= value && position < value2) {
+			if (position < value2) {
 				return value;
 			}
 
 			value = value2;
 		}
 
-		return getHeaders().lastKey();
+		return value;
 	}
 }
