@@ -3,14 +3,14 @@ package com.wagado.stickysection;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.wagado.widget.StickySectionListAdapter;
+import com.wagado.widget.StickySectionListView;
+
 import ru.camino.parts.adapter.SectionListAdapter.SectionDetector;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-
-import com.wagado.widget.StickySectionListAdapter;
-import com.wagado.widget.StickySectionListView;
 
 public class StickySectionActivity extends Activity {
 	@Override
@@ -25,9 +25,9 @@ public class StickySectionActivity extends Activity {
 		}
 		final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, android.R.id.text1, list);
 
-
 		final StickySectionListView listView = (StickySectionListView) findViewById(R.id.sticky_section_list);
 		listView.setAdapter(createAdapter(arrayAdapter));
+		listView.setFastScrollEnabled(true);
 	}
 
 	private StickySectionListAdapter createAdapter(BaseAdapter adapter) {
@@ -50,6 +50,6 @@ public class StickySectionActivity extends Activity {
 			}
 		};
 
-		return new StickySectionListAdapter(getBaseContext(), adapter, sectionDetector);
+		return new StickySectionListAdapter(getBaseContext(), adapter, sectionDetector, android.R.layout.preference_category, android.R.id.title);
 	}
 }
