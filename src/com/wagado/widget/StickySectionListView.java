@@ -1,6 +1,5 @@
 package com.wagado.widget;
 
-import ru.camino.parts.adapter.SectionListAdapter;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -59,7 +58,7 @@ public class StickySectionListView extends ListView {
 
 	@Override
 	public void setAdapter(ListAdapter adapter) {
-		if (!(adapter instanceof SectionListAdapter)) {
+		if (!(adapter instanceof StickySectionListAdapter)) {
 			throw new IllegalStateException(TAG + ": For sticky section your adapter must extends StickySectionListAdapter.");
 		}
 
