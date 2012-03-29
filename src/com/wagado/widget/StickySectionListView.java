@@ -1,6 +1,7 @@
 package com.wagado.widget;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;
@@ -18,8 +19,11 @@ public class StickySectionListView extends ListView {
 				final View sticker = ((StickySectionListAdapter) getAdapter()).getStickerSection(firstVisibleItem, mStickerSection);
 				if (sticker != null) {
 					mParent.removeView(mStickerSection);
+
 					mStickerSection = sticker;
-					mParent.addView(mStickerSection, mLayoutParams);
+					mStickerSection.setVisibility(View.INVISIBLE);
+
+					mParent.addView(mStickerSection, 0, mLayoutParams);
 				}
 			}
 		}
@@ -49,6 +53,15 @@ public class StickySectionListView extends ListView {
 		mLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 
 		setOnScrollListener(mOnScrollListener);
+	}
+
+	@Override
+	protected void dispatchDraw(Canvas canvas) {
+		super.dispatchDraw(canvas);
+
+		if (mStickerSection != null) {
+			mStickerSection.draw(canvas);
+		}
 	}
 
 	@Override
