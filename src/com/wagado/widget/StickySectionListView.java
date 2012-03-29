@@ -30,8 +30,8 @@ public class StickySectionListView extends ListView {
 		}
 	};
 
-	private FrameLayout mParent;
 	private View mStickerSection;
+	private FrameLayout mParent;
 
 	private final FrameLayout.LayoutParams mLayoutParams;
 

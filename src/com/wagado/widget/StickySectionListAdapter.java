@@ -18,7 +18,6 @@ public class StickySectionListAdapter extends SectionListAdapter implements Sect
 	protected final int mTitleTextViewId;
 
 	private int mCurrentSection = -1;
-	
 
 	public StickySectionListAdapter(Context context, BaseAdapter adapter, SectionListAdapter.SectionDetector detector) {
 		this(context, adapter, detector, android.R.layout.preference_category, android.R.id.title);

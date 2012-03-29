@@ -13,21 +13,33 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 
 public class StickySectionActivity extends Activity {
+
+	private StickySectionListView mListView;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		final int count = 30000;
-		final List<String> list = new ArrayList<String>();
-		for (int i = 1; i <= count; i ++) {
-			list.add("element ¹ " + Integer.toString(i));
-		}
-		final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, android.R.id.text1, list);
+		mListView = (StickySectionListView) findViewById(R.id.sticky_section_list);
 
-		final StickySectionListView listView = (StickySectionListView) findViewById(R.id.sticky_section_list);
-		listView.setAdapter(createAdapter(arrayAdapter));
-		listView.setFastScrollEnabled(true);
+		StickySectionListAdapter adapter = (StickySectionListAdapter) getLastNonConfigurationInstance();
+		if (getLastNonConfigurationInstance() == null) {
+			final int count = 30000;
+			final List<String> list = new ArrayList<String>();
+			for (int i = 1; i <= count; i ++) {
+				list.add("element ¹ " + Integer.toString(i));
+			}
+			adapter = createAdapter(new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, android.R.id.text1, list));
+		}
+
+		mListView.setAdapter(adapter);
+		mListView.setFastScrollEnabled(true);
+	}
+
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return mListView.getAdapter();
 	}
 
 	private StickySectionListAdapter createAdapter(BaseAdapter adapter) {
