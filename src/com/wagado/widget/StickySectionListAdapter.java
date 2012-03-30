@@ -52,6 +52,12 @@ public class StickySectionListAdapter extends SectionListAdapter implements Sect
 		}
 	}
 
+	/**
+	 * Получить View секции, если она изменилась для переданного элемента.
+	 * @param position - позиция элемента, для которого запрашивается секция
+	 * @param stickerSection - секция, который на данный момент присутствует в ListView
+	 * @return View новой секции. Если секция не изменилась вернется null.
+	 */
 	public View getStickerSection(int position, View stickerSection) {
 		final int section = getSectionByPosition(position);
 
@@ -63,6 +69,10 @@ public class StickySectionListAdapter extends SectionListAdapter implements Sect
 		return null;
 	}
 
+	/**
+	 * Получить позицию секции, которой принадлежит элемент
+	 * @param position - позиция элемента, для которого ищется позиция секции
+	 */
 	public int getSectionByPosition(int position) {
 		final Iterator<Integer> iterator = getHeaders().keySet().iterator();
 

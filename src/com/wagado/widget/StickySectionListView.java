@@ -83,7 +83,9 @@ public class StickySectionListView extends ListView {
 
 
 
-
+	/**
+	 * Перерасчет смещения "стикера", относительно следующего видимого заголовка, котоыре будет его замещать
+	 */
 	protected void scrollStickerView() {
 		if (mNextSection != null) {
 			final int top = mNextSection.getTop();
@@ -99,6 +101,10 @@ public class StickySectionListView extends ListView {
 		}
 	}
 
+	/**
+	 * Рисование "стикера" на переданном Canvas. Рисование идет после детей, перед эффектами и Scrollbar.
+	 * @param canvas - Canvas на котором рисуются все элементы ListView
+	 */
 	protected void drawSticker(Canvas canvas) {
 		final Bitmap bitmap = Bitmap.createBitmap(mStickerSection.getMeasuredWidth(), mStickerSection.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
 		final Canvas canvas2 = new Canvas(bitmap);
