@@ -3,7 +3,6 @@ package com.wagado.widget;
 import java.util.Iterator;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
@@ -21,8 +20,6 @@ public class StickySectionListView extends ListView {
 
 	private FrameLayout mParent;
 	private FrameLayout.LayoutParams mLayoutParams;
-
-	private Bitmap mStickerBitmap;
 
 	private boolean isStickyScroll;
 	private int mStickerMargin;
@@ -124,11 +121,6 @@ public class StickySectionListView extends ListView {
 				mStickerSection = getAdapter().getView(mCurrentSection, mStickerSection, null);
 			}
 
-			if (mStickerBitmap != null) {
-				mStickerBitmap.recycle();
-				mStickerBitmap = null;
-			}
-
 			if (mStickerSection != null) {
 				mParent.removeView(mStickerSection);
 
@@ -145,22 +137,22 @@ public class StickySectionListView extends ListView {
 	 * @param position - позиция секции в списке
 	 */
 	protected void catchNextSection (int position) {
-		final boolean isNextSection = ((StickySectionListAdapter) getAdapter()).isHeader(position);
+		final int delta = 1;
+		final boolean isNextSection = ((StickySectionListAdapter) getAdapter()).isHeader(position + delta);
 		if (isNextSection) {
-			mNextSectionChild = 1;
+			mNextSectionChild = delta;
 		} else {
 			mNextSectionChild = NOT_VALUE;
 		}
 	}
 
 	/**
-	 * Инициализация секции, которая будет смещать "Стикер" по переданной позиции.
-	 * @param position - позиция секции в списке
+	 * Расчет отсупа "Стикера" от верхней границы StickySectionListView
 	 */
 	protected void calculateStickerMargin () {
 		if (mNextSectionChild != NOT_VALUE) {
 			final int top = getChildAt(mNextSectionChild).getTop();
-			final int height = mStickerSection.getMeasuredHeight();
+			final int height = mStickerSection.getHeight();
 
 			if (top < 0 || top > height) {
 				mStickerMargin = 0;
@@ -170,8 +162,6 @@ public class StickySectionListView extends ListView {
 		} else {
 			mStickerMargin = 0;
 		}
-
-//		mStickerSection.scrollTo(0, mStickerMargin);
 	}
 
 	/**
@@ -179,14 +169,9 @@ public class StickySectionListView extends ListView {
 	 * @param canvas - Canvas на котором рисуются все элементы ListView
 	 */
 	protected void drawSticker(Canvas canvas) {
-		if (mStickerBitmap == null) {
-			mStickerBitmap = Bitmap.createBitmap(mStickerSection.getMeasuredWidth(), mStickerSection.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-			final Canvas canvas2 = new Canvas(mStickerBitmap);
-			mStickerSection.draw(canvas2);
-		}
-
-		canvas.drawBitmap(mStickerBitmap, 0, mStickerMargin, null);
-//		mStickerSection.draw(canvas);
+		canvas.translate(0, mStickerMargin);
+		mStickerSection.draw(canvas);
+		canvas.translate(0, - mStickerMargin);
 	}
 
 
@@ -200,7 +185,7 @@ public class StickySectionListView extends ListView {
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			createSticker(firstVisibleItem);
-			catchNextSection(firstVisibleItem + 1);
+			catchNextSection(firstVisibleItem);
 		}
 
 		@Override
