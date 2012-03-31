@@ -25,7 +25,7 @@ public class StickySectionActivity extends Activity {
 
 		StickySectionListAdapter adapter = (StickySectionListAdapter) getLastNonConfigurationInstance();
 		if (getLastNonConfigurationInstance() == null) {
-			final int count = 30000;
+			final int count = 10000;
 			final List<String> list = new ArrayList<String>();
 			for (int i = 1; i <= count; i ++) {
 				list.add("element ¹ " + Integer.toString(i));
@@ -44,7 +44,7 @@ public class StickySectionActivity extends Activity {
 
 	private StickySectionListAdapter createAdapter(BaseAdapter adapter) {
 		final SectionDetector sectionDetector = new SectionDetector() {
-			final private int portion = 43;
+			final private int portion = 19;
 
 			private int count = 0;
 
@@ -52,7 +52,7 @@ public class StickySectionActivity extends Activity {
 			public Object detectSection(Object arg0, Object arg1) {
 				String title = null;
 
-				if (count % portion == 0) {
+				if (count % portion == 0 && count > 0) {
 					title = "section for " + Integer.toString(count + 1) + "-" + Integer.toString(count +portion);
 				}
 

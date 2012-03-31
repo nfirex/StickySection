@@ -17,8 +17,6 @@ public class StickySectionListAdapter extends SectionListAdapter implements Sect
 	protected final int mHeaderLayoutId;
 	protected final int mTitleTextViewId;
 
-	private int mCurrentSection = -1;
-
 	public StickySectionListAdapter(Context context, BaseAdapter adapter, SectionListAdapter.SectionDetector detector) {
 		this(context, adapter, detector, android.R.layout.preference_category, android.R.id.title);
 	}
@@ -51,45 +49,6 @@ public class StickySectionListAdapter extends SectionListAdapter implements Sect
 			return null;
 		}
 	}
-
-	/**
-	 * Получить View секции, если она изменилась для переданного элемента.
-	 * @param position - позиция элемента, для которого запрашивается секция
-	 * @param stickerSection - секция, который на данный момент присутствует в ListView
-	 * @return View новой секции. Если секция не изменилась вернется null.
-	 */
-	public View getStickerSection(int position, View stickerSection) {
-		final int section = getSectionByPosition(position);
-
-		if (mCurrentSection != section) {
-			mCurrentSection = section;
-			return getView(mCurrentSection, stickerSection, null);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Получить позицию секции, которой принадлежит элемент
-	 * @param position - позиция элемента, для которого ищется позиция секции
-	 */
-	public int getSectionByPosition(int position) {
-		final Iterator<Integer> iterator = getHeaders().keySet().iterator();
-
-		int value = iterator.next();
-		while (iterator.hasNext()) {
-			final int value2 = iterator.next();
-
-			if (position < value2) {
-				return value;
-			}
-
-			value = value2;
-		}
-
-		return value;
-	}
-
 
 	@Override
 	public int getPositionForSection(int section) {
