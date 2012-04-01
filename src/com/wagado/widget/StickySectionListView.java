@@ -226,7 +226,7 @@ public class StickySectionListView extends ListView {
 
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
-			
+
 		}
 	};
 
