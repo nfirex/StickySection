@@ -20,6 +20,8 @@ import java.util.Iterator;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;
@@ -38,6 +40,7 @@ public class StickySectionListView extends ListView {
 	private FrameLayout.LayoutParams mLayoutParams;
 
 	private boolean isStickyScroll;
+
 	private int mStickerMargin;
 	private int mCurrentSection;
 	private int mNextSectionChild;
@@ -92,6 +95,23 @@ public class StickySectionListView extends ListView {
 			calculateStickerMargin();
 			drawSticker(canvas);
 		}
+	}
+
+	@Override
+	public void onRestoreInstanceState(Parcelable state) {
+		final SavedState savedState = (SavedState) state;
+
+		super.onRestoreInstanceState(savedState.getSuperState());
+
+		createSticker(savedState.currentStickerSection);
+	}
+
+	@Override
+	public Parcelable onSaveInstanceState() {
+		final SavedState savedState = new SavedState(super.onSaveInstanceState());
+		savedState.currentStickerSection = mCurrentSection;
+
+		return savedState;
 	}
 
 
@@ -209,4 +229,30 @@ public class StickySectionListView extends ListView {
 			
 		}
 	};
+
+	static class SavedState extends BaseSavedState {
+		int currentStickerSection;
+
+		SavedState(Parcelable superState) {
+			super(superState);
+		}
+
+		private SavedState(Parcel in) {
+			super(in);
+			currentStickerSection = in.readInt();
+		}
+
+		@Override
+		public void writeToParcel(Parcel out, int flags) {
+			super.writeToParcel(out, flags);
+			out.writeInt(currentStickerSection);
+		}
+
+		@Override
+		public String toString() {
+			return TAG + ".SavedState{"
+					+ " currentStickerSection=" + Integer.toString(currentStickerSection)
+					+ "}";
+		}
+	}
 }
