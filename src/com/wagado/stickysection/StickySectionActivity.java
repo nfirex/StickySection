@@ -3,14 +3,17 @@ package com.wagado.stickysection;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.wagado.widget.StickySectionListAdapter;
 import com.wagado.widget.StickySectionListView;
 
+import ru.camino.parts.adapter.SectionListAdapter;
 import ru.camino.parts.adapter.SectionListAdapter.SectionDetector;
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 public class StickySectionActivity extends Activity {
 
@@ -23,7 +26,7 @@ public class StickySectionActivity extends Activity {
 
 		mListView = (StickySectionListView) findViewById(R.id.sticky_section_list);
 
-		StickySectionListAdapter adapter = (StickySectionListAdapter) getLastNonConfigurationInstance();
+		SectionListAdapter adapter = (SectionListAdapter) getLastNonConfigurationInstance();
 		if (getLastNonConfigurationInstance() == null) {
 			final int count = 10000;
 			final List<String> list = new ArrayList<String>();
@@ -42,7 +45,7 @@ public class StickySectionActivity extends Activity {
 		return mListView.getAdapter();
 	}
 
-	private StickySectionListAdapter createAdapter(BaseAdapter adapter) {
+	private SectionListAdapter createAdapter(BaseAdapter adapter) {
 		final SectionDetector sectionDetector = new SectionDetector() {
 			final private int portion = 19;
 
@@ -62,6 +65,31 @@ public class StickySectionActivity extends Activity {
 			}
 		};
 
-		return new StickySectionListAdapter(getBaseContext(), adapter, sectionDetector, android.R.layout.preference_category, android.R.id.title);
+		return new SectionListAdapter(adapter, sectionDetector) {
+			protected final int mHeaderLayoutId = android.R.layout.preference_category;
+			protected final int mTitleTextViewId = android.R.id.title;
+
+			@Override
+			protected View getSectionView(Object header, View convertView, ViewGroup parent) {
+				View v;
+				if (convertView != null) {
+					v = convertView;
+				} else {
+					v = View.inflate(getBaseContext(), mHeaderLayoutId, null);
+				}
+				((TextView) v.findViewById(mTitleTextViewId)).setText(header.toString());
+
+				return v;
+			}
+
+			@Override
+			protected Object getSectionHeader(Object firstItem, Object secondItem) {
+				if (getSectionDetector() != null) {
+					return getSectionDetector().detectSection(firstItem, secondItem);
+				} else {
+					return null;
+				}
+			}
+		};
 	}
 }

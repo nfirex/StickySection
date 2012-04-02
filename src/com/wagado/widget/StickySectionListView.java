@@ -18,6 +18,8 @@ package com.wagado.widget;
 
 import java.util.Iterator;
 
+import ru.camino.parts.adapter.SectionListAdapter;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Parcel;
@@ -61,7 +63,7 @@ public class StickySectionListView extends ListView {
 	public void setAdapter(ListAdapter adapter) {
 		super.setAdapter(adapter);
 
-		if (adapter instanceof StickySectionListAdapter) {
+		if (adapter instanceof SectionListAdapter) {
 			mParent = (FrameLayout) getParent();
 			mLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 			mCurrentSection = 0;
@@ -122,7 +124,7 @@ public class StickySectionListView extends ListView {
 	 * @param position - позиция элемента, для которого ищется позиция секции
 	 */
 	protected int getSectionByPosition(int position) {
-		final Iterator<Integer> iterator = ((StickySectionListAdapter) getAdapter()).getHeaders().keySet().iterator();
+		final Iterator<Integer> iterator = ((SectionListAdapter) getAdapter()).getHeaders().keySet().iterator();
 
 		int value = iterator.next();
 
@@ -174,7 +176,7 @@ public class StickySectionListView extends ListView {
 	 */
 	protected void catchNextSection (int position) {
 		final int delta = 1;
-		final boolean isNextSection = ((StickySectionListAdapter) getAdapter()).isHeader(position + delta);
+		final boolean isNextSection = ((SectionListAdapter) getAdapter()).isHeader(position + delta);
 		if (isNextSection) {
 			mNextSectionChild = delta;
 		} else {
