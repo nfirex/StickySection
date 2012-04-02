@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 by Kleshchin Nikita (nfirex)
+ * Copyright 2012 by Kleshchin Nikita (nfirex), Artemyev Vasiliy (vasart)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,8 +116,8 @@ public class StickySectionListView extends ListView {
 
 
 	/**
-	 * �������� ������� ������, ������� ����������� �������
-	 * @param position - ������� ��������, ��� �������� ������ ������� ������
+	 * Get section position for element 
+	 * @param position - position of element
 	 */
 	protected int getSectionByPosition(int position) {
 		int result = INVALID_POSITION;
@@ -131,8 +131,8 @@ public class StickySectionListView extends ListView {
 	}
 
 	/**
-	 * ������������� "�������" �� ���������� �������.
-	 * @param position - ������� ������ � ������
+	 * Recreate sticker (or null it)
+	 * @param position - position of item at ListView
 	 */
 	protected void createSticker (int position) {
 		final int section = getSectionByPosition(position);
@@ -157,8 +157,8 @@ public class StickySectionListView extends ListView {
 	}
 
 	/**
-	 * ������������� ������, ������� ����� ������� "������" �� ���������� �������.
-	 * @param position - ������� ������ � ������
+	 * Catch child index of view that can shift the sticker.
+	 * @param position - position of first view child at ListView
 	 */
 	protected void catchNextSection (int position) {
 		final int delta = 1;
@@ -171,7 +171,7 @@ public class StickySectionListView extends ListView {
 	}
 
 	/**
-	 * ������ ������ "�������" �� ������� ������� StickySectionListView
+	 * Calculate sticker margin from top if it can shift by section
 	 */
 	protected void calculateStickerMargin () {
 		if (mNextSectionChild != INVALID_POSITION) {
@@ -189,8 +189,8 @@ public class StickySectionListView extends ListView {
 	}
 
 	/**
-	 * ��������� "�������" �� ���������� Canvas. ��������� ���� ����� �����, ����� ��������� � Scrollbar.
-	 * @param canvas - Canvas �� ������� �������� ��� �������� ListView
+	 * Draw sticker at ListView's Canvas after drawing a children of ListView
+	 * @param canvas - Canvas for ListView, his child and blahblahblah
 	 */
 	protected void drawSticker(Canvas canvas) {
 		canvas.translate(0, mStickerMargin);
@@ -202,8 +202,7 @@ public class StickySectionListView extends ListView {
 
 
 	/**
-	 * OnScrollListener ��� ������������ ����� ��������� ������. 
-	 * ���������� ����� �������� ���������� � ����������� � ������������ "�������".
+	 * OnScrollListener for tracking changes of children's positions
 	 */
 	private class StickyScrollListener implements OnScrollListener {
 		@Override
@@ -219,8 +218,7 @@ public class StickySectionListView extends ListView {
 	};
 
 	/**
-	 * ����� ��� ���������� ��������� StickySectionListView, ����� ����� ������������ �������� (��������, ����� ��������), 
-	 * �� �������� "������".
+	 * Class for saving data about sticker if Activity change the state (rotate a screen for example)
 	 */
 	private class SavedState extends BaseSavedState {
 		int currentStickerSection;
