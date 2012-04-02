@@ -55,7 +55,7 @@ public class StickySectionActivity extends ListActivity {
 			public Object detectSection(Object arg0, Object arg1) {
 				String title = null;
 
-				if (count % portion == 0 && count > 0) {
+				if (count % portion == 0) {
 					title = "section for " + Integer.toString(count + 1) + "-" + Integer.toString(count +portion);
 				}
 

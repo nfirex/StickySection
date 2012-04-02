@@ -30,8 +30,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 public class StickySectionListView extends ListView {
-	public static final int NOT_VALUE = -1;
-
 	protected static final String TAG = "StickySectionListView";
 
 	private View mStickerSection;
@@ -64,9 +62,9 @@ public class StickySectionListView extends ListView {
 		if (adapter instanceof SectionListAdapter) {
 			mParent = (ViewGroup) getParent();
 			mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-			mCurrentSection = 0;
+			mCurrentSection = INVALID_POSITION;
 
-			createSticker(mCurrentSection);
+			createSticker(0);
 
 			setOnScrollListener(new StickyScrollListener());
 		} else {
@@ -122,7 +120,7 @@ public class StickySectionListView extends ListView {
 	 * @param position - ������� ��������, ��� �������� ������ ������� ������
 	 */
 	protected int getSectionByPosition(int position) {
-		int result = NOT_VALUE;
+		int result = INVALID_POSITION;
 
 		for (int i: ((SectionListAdapter) getAdapter()).getHeaders().keySet()) {
 			if (position < i) break;
@@ -141,7 +139,7 @@ public class StickySectionListView extends ListView {
 		if (mCurrentSection != section) {
 			mCurrentSection = section;
 
-			if (mCurrentSection == NOT_VALUE) {
+			if (mCurrentSection == INVALID_POSITION) {
 				mStickerSection = null;
 			} else {
 				mStickerSection = getAdapter().getView(mCurrentSection, mStickerSection, null);
@@ -168,7 +166,7 @@ public class StickySectionListView extends ListView {
 		if (isNextSection) {
 			mNextSectionChild = delta;
 		} else {
-			mNextSectionChild = NOT_VALUE;
+			mNextSectionChild = INVALID_POSITION;
 		}
 	}
 
@@ -176,7 +174,7 @@ public class StickySectionListView extends ListView {
 	 * ������ ������ "�������" �� ������� ������� StickySectionListView
 	 */
 	protected void calculateStickerMargin () {
-		if (mNextSectionChild != NOT_VALUE) {
+		if (mNextSectionChild != INVALID_POSITION) {
 			final int top = getChildAt(mNextSectionChild).getTop();
 			final int height = mStickerSection.getHeight();
 
