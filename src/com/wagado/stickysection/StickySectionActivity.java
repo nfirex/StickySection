@@ -7,7 +7,7 @@ import com.wagado.widget.StickySectionListView;
 
 import ru.camino.parts.adapter.SectionListAdapter;
 import ru.camino.parts.adapter.SectionListAdapter.SectionDetector;
-import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class StickySectionActivity extends Activity {
+public class StickySectionActivity extends ListActivity {
 
 	private StickySectionListView mListView;
 
@@ -24,14 +24,14 @@ public class StickySectionActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		mListView = (StickySectionListView) findViewById(R.id.sticky_section_list);
+		mListView = (StickySectionListView) getListView();
 
 		SectionListAdapter adapter = (SectionListAdapter) getLastNonConfigurationInstance();
 		if (getLastNonConfigurationInstance() == null) {
 			final int count = 10000;
 			final List<String> list = new ArrayList<String>();
 			for (int i = 1; i <= count; i ++) {
-				list.add("element ¹ " + Integer.toString(i));
+				list.add("element ï¿½ " + Integer.toString(i));
 			}
 			adapter = createAdapter(new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, android.R.id.text1, list));
 		}

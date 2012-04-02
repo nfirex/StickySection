@@ -1,11 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent" >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
-	<com.wagado.widget.StickySectionListView
-		android:id="@+id/sticky_section_list"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
+    <!--
+        Layout changed to RelativeLayout
+        TextView and ImageView added
+        We need to imitate real layout
+    -->
 
-</merge>
+    <TextView
+        android:id="@+id/randomText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/random_text" />
+
+    <ImageView
+        android:id="@+id/randomImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/randomText"
+        android:contentDescription="@string/here_be_dragons"
+        android:src="@drawable/ic_launcher" />
+
+    <com.wagado.widget.StickySectionListView
+        android:id="@android:id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/randomImage" />
+
+</RelativeLayout>

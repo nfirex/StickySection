@@ -16,8 +16,6 @@
 
 package com.wagado.widget;
 
-import java.util.Iterator;
-
 import ru.camino.parts.adapter.SectionListAdapter;
 
 import android.content.Context;
@@ -26,8 +24,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -38,8 +36,8 @@ public class StickySectionListView extends ListView {
 
 	private View mStickerSection;
 
-	private FrameLayout mParent;
-	private FrameLayout.LayoutParams mLayoutParams;
+	private ViewGroup mParent;
+	private ViewGroup.LayoutParams mLayoutParams;
 
 	private boolean isStickyScroll;
 
@@ -64,8 +62,8 @@ public class StickySectionListView extends ListView {
 		super.setAdapter(adapter);
 
 		if (adapter instanceof SectionListAdapter) {
-			mParent = (FrameLayout) getParent();
-			mLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+			mParent = (ViewGroup) getParent();
+			mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 			mCurrentSection = 0;
 
 			createSticker(mCurrentSection);
@@ -120,33 +118,23 @@ public class StickySectionListView extends ListView {
 
 
 	/**
-	 * Получить позицию секции, которой принадлежит элемент
-	 * @param position - позиция элемента, для которого ищется позиция секции
+	 * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	 * @param position - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	 */
 	protected int getSectionByPosition(int position) {
-		final Iterator<Integer> iterator = ((SectionListAdapter) getAdapter()).getHeaders().keySet().iterator();
+		int result = NOT_VALUE;
 
-		int value = iterator.next();
-
-		if (position < value) {
-			return NOT_VALUE;
+		for (int i: ((SectionListAdapter) getAdapter()).getHeaders().keySet()) {
+			if (position < i) break;
+			else result = i;
 		}
 
-		while (iterator.hasNext()) {
-			final int value2 = iterator.next();
-			if (position < value2) {
-				break;
-			}
-
-			value = value2;
-		}
-
-		return value;
+		return result;
 	}
 
 	/**
-	 * Инициализация "Стикера" по переданной позиции.
-	 * @param position - позиция секции в списке
+	 * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+	 * @param position - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	 */
 	protected void createSticker (int position) {
 		final int section = getSectionByPosition(position);
@@ -171,8 +159,8 @@ public class StickySectionListView extends ListView {
 	}
 
 	/**
-	 * Инициализация секции, которая будет смещать "Стикер" по переданной позиции.
-	 * @param position - позиция секции в списке
+	 * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+	 * @param position - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	 */
 	protected void catchNextSection (int position) {
 		final int delta = 1;
@@ -185,7 +173,7 @@ public class StickySectionListView extends ListView {
 	}
 
 	/**
-	 * Расчет отсупа "Стикера" от верхней границы StickySectionListView
+	 * пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ StickySectionListView
 	 */
 	protected void calculateStickerMargin () {
 		if (mNextSectionChild != NOT_VALUE) {
@@ -203,8 +191,8 @@ public class StickySectionListView extends ListView {
 	}
 
 	/**
-	 * Рисование "стикера" на переданном Canvas. Рисование идет после детей, перед эффектами и Scrollbar.
-	 * @param canvas - Canvas на котором рисуются все элементы ListView
+	 * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Canvas. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ Scrollbar.
+	 * @param canvas - Canvas пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ListView
 	 */
 	protected void drawSticker(Canvas canvas) {
 		canvas.translate(0, mStickerMargin);
@@ -216,8 +204,8 @@ public class StickySectionListView extends ListView {
 
 
 	/**
-	 * OnScrollListener для отслеживания смены элементов списка. 
-	 * Определяет какие элементы учавствуют в отображении и расположения "Стикера".
+	 * OnScrollListener пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ. 
+	 * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ".
 	 */
 	private class StickyScrollListener implements OnScrollListener {
 		@Override
@@ -233,8 +221,8 @@ public class StickySectionListView extends ListView {
 	};
 
 	/**
-	 * Класс для сохранения состояния StickySectionListView, чтобы после перезагрузки активити (например, после поворота), 
-	 * не потерять "Стикер".
+	 * пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ StickySectionListView, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ), 
+	 * пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅ".
 	 */
 	private class SavedState extends BaseSavedState {
 		int currentStickerSection;
