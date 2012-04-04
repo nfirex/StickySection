@@ -31,7 +31,7 @@ public class StickySectionActivity extends ListActivity {
 			final int count = 10000;
 			final List<String> list = new ArrayList<String>();
 			for (int i = 1; i <= count; i ++) {
-				list.add("element � " + Integer.toString(i));
+				list.add("element #" + Integer.toString(i));
 			}
 			adapter = createAdapter(new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, android.R.id.text1, list));
 		}

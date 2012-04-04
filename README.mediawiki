@@ -1,0 +1,25 @@
+= StickySectionListView: Stick section at top of ListView =
+An attempt to copy a ListView with sticky sections of iPhone.
+
+{|
+! align="center"| iOs
+! Android OS
+|-
+| [[File:stickysectionlistview_iphone.png|link=https://github.com/downloads/nfirex/StickySection/]]
+| [[File:stickysectionlistview_android.png|link=https://github.com/downloads/nfirex/StickySection/]]
+|}
+
+== Dependencies ==
+This project requires the [https://github.com/MikeCamino/CaminoParts SectionListAdapter (by Camino)]. You can found a copy of a compatible .jar in the 
+"libs" of the project. Or you can override all and use SectionIndexer interface, for example.
+
+== Usage ==
+After '''StickyListView''' creating you must use '''setAdapter(''yourAdapter'')''' method. ''yourAdapter'' must extends a '''StickyListAdapter''' by Camino, otherway '''StickySectionListView''' will work like defult '''ListView'''.
+
+'''StickySectionListView''' is a single class in src/com/wagado/widget/StickySectionListView.class. You can export only this class as .jar or copy in you project source.
+
+== Demo ==
+It is a demonstration project - you can download and run it.
+
+== License ==
+The code in this project is licensed under the Apache Software License 2.0.
