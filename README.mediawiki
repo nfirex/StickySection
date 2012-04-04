@@ -5,8 +5,8 @@ An attempt to copy a ListView with sticky sections of iPhone.
 ! align="center"| iOs
 ! Android OS
 |-
-| [[File:stickysectionlistview_iphone.png|link=https://github.com/downloads/nfirex/StickySection/]]
-| [[File:stickysectionlistview_android.png|link=https://github.com/downloads/nfirex/StickySection/]]
+| [[File:https://github.com/downloads/nfirex/StickySection/stickysectionlistview_iphone.png]]
+| [[File:https://github.com/downloads/nfirex/StickySection/stickysectionlistview_android.png]]
 |}
 
 == Dependencies ==
