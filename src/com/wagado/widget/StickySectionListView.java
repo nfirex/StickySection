@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 by Kleshchin Nikita (nfirex), Artemyev Vasiliy (vasart)
+ * Copyright 2012 by Kleshchin Nikita (nfirex), Artemyev Vasiliy (vasyx)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,14 @@ public class StickySectionListView extends ListView {
 				setOnScrollListener(null);
 			}
 		}
+	}
+
+	@Override
+	public void setSelectionFromTop(int position, int y) {
+		super.setSelectionFromTop(position, y);
+
+		createSticker(position);
+		catchNextSection(position);
 	}
 
 	@Override
