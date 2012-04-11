@@ -34,15 +34,17 @@ public class StickySectionListView extends ListView {
 
 	private View mStickerSection;
 
-	private SectionListAdapter mAdapter;
 	private ViewGroup mParent;
 	private ViewGroup.LayoutParams mLayoutParams;
+	private SectionListAdapter mAdapter;
 
 	private boolean isStickyScroll;
 
 	private int mStickerMargin;
 	private int mCurrentSection;
 	private int mNextSectionChild;
+
+	private final StickyScrollListener mStickyScrollListener; 
 
 	public StickySectionListView(Context context) {
 		this(context, null);
@@ -54,6 +56,9 @@ public class StickySectionListView extends ListView {
 
 	public StickySectionListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+
+		mStickyScrollListener = new StickyScrollListener();
+		super.setOnScrollListener(mStickyScrollListener);
 	}
 
 	@Override
@@ -61,23 +66,19 @@ public class StickySectionListView extends ListView {
 		super.setAdapter(adapter);
 
 		if (adapter instanceof SectionListAdapter) {
+			isStickyScroll = true;
 			mAdapter = (SectionListAdapter) adapter;
 			mParent = (ViewGroup) getParent();
 			mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 			mCurrentSection = INVALID_POSITION;
 
 			createSticker(0);
-
-			setOnScrollListener(new StickyScrollListener());
 		} else {
+			isStickyScroll = false;
 			mAdapter = null;
 			mParent = null;
 			mLayoutParams = null;
 			mStickerSection = null;
-
-			if (isStickyScroll) {
-				setOnScrollListener(null);
-			}
 		}
 	}
 
@@ -91,9 +92,7 @@ public class StickySectionListView extends ListView {
 
 	@Override
 	public void setOnScrollListener(OnScrollListener l) {
-		super.setOnScrollListener(l);
-
-		isStickyScroll = l instanceof StickyScrollListener;
+		mStickyScrollListener.setInternalScrollListener(l);
 	}
 
 	@Override
@@ -216,15 +215,29 @@ public class StickySectionListView extends ListView {
 	 * OnScrollListener for tracking changes of children's positions
 	 */
 	private class StickyScrollListener implements OnScrollListener {
+		private OnScrollListener internalOnScrollListener;
+
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			createSticker(firstVisibleItem);
-			catchNextSection(firstVisibleItem);
+			if (isStickyScroll) {
+				createSticker(firstVisibleItem);
+				catchNextSection(firstVisibleItem);
+			}
+
+			if (internalOnScrollListener != null) {
+				internalOnScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+			}
 		}
 
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
+			if (internalOnScrollListener != null) {
+				internalOnScrollListener.onScrollStateChanged(view, scrollState);
+			}
+		}
 
+		public void setInternalScrollListener (OnScrollListener listener) {
+			internalOnScrollListener = listener;
 		}
 	};
 
