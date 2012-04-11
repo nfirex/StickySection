@@ -34,6 +34,7 @@ public class StickySectionListView extends ListView {
 
 	private View mStickerSection;
 
+	private SectionListAdapter mAdapter;
 	private ViewGroup mParent;
 	private ViewGroup.LayoutParams mLayoutParams;
 
@@ -60,6 +61,7 @@ public class StickySectionListView extends ListView {
 		super.setAdapter(adapter);
 
 		if (adapter instanceof SectionListAdapter) {
+			mAdapter = (SectionListAdapter) adapter;
 			mParent = (ViewGroup) getParent();
 			mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 			mCurrentSection = INVALID_POSITION;
@@ -68,6 +70,7 @@ public class StickySectionListView extends ListView {
 
 			setOnScrollListener(new StickyScrollListener());
 		} else {
+			mAdapter = null;
 			mParent = null;
 			mLayoutParams = null;
 			mStickerSection = null;
@@ -130,7 +133,7 @@ public class StickySectionListView extends ListView {
 	protected int getSectionByPosition(int position) {
 		int result = INVALID_POSITION;
 
-		for (int i: ((SectionListAdapter) getAdapter()).getHeaders().keySet()) {
+		for (int i: (mAdapter.getHeaders().keySet())) {
 			if (position < i) break;
 			else result = i;
 		}
@@ -170,7 +173,7 @@ public class StickySectionListView extends ListView {
 	 */
 	protected void catchNextSection (int position) {
 		final int delta = 1;
-		final boolean isNextSection = ((SectionListAdapter) getAdapter()).isHeader(position + delta);
+		final boolean isNextSection = mAdapter.isHeader(position + delta);
 		if (isNextSection) {
 			mNextSectionChild = delta;
 		} else {
