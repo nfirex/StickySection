@@ -67,12 +67,10 @@ public class StickySectionListView extends ListView {
 
 		if (adapter instanceof SectionListAdapter) {
 			isStickyScroll = true;
+			mCurrentSection = INVALID_POSITION;
 			mAdapter = (SectionListAdapter) adapter;
 			mParent = (ViewGroup) getParent();
 			mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-			mCurrentSection = INVALID_POSITION;
-
-			createSticker(0);
 		} else {
 			isStickyScroll = false;
 			mAdapter = null;
@@ -86,8 +84,7 @@ public class StickySectionListView extends ListView {
 	public void setSelectionFromTop(int position, int y) {
 		super.setSelectionFromTop(position, y);
 
-		createSticker(position);
-		catchNextSection(position);
+		checkAndCreateSticker(position);
 	}
 
 	@Override
@@ -141,27 +138,34 @@ public class StickySectionListView extends ListView {
 	}
 
 	/**
-	 * Recreate sticker (or null it)
+	 * Check current sticker position and recreate sticker (or null it) if it needed
 	 * @param position - position of item at ListView
 	 */
-	protected void createSticker (int position) {
+	protected void checkAndCreateSticker (int position) {
 		final int section = getSectionByPosition(position);
 		if (mCurrentSection != section) {
 			mCurrentSection = section;
+			createSticker(mCurrentSection);
+		}
 
-			if (mCurrentSection == INVALID_POSITION) {
-				mStickerSection = null;
-			} else {
-				mStickerSection = getAdapter().getView(mCurrentSection, mStickerSection, null);
-			}
+		catchNextSection(position);
+	}
 
-			if (mStickerSection != null) {
-				mParent.removeView(mStickerSection);
+	/**
+	 * Recreate sticker (or null it)
+	 * @param position - position of item at ListView
+	 */
+	protected void createSticker (int section) {
+		if (section == INVALID_POSITION) {
+			mStickerSection = null;
+		} else {
+			mStickerSection = getAdapter().getView(section, mStickerSection, null);
+		}
 
-				mStickerSection.setVisibility(View.INVISIBLE);
-
-				mParent.addView(mStickerSection, mLayoutParams);
-			}
+		if (mStickerSection != null) {
+			mParent.removeView(mStickerSection);
+			mStickerSection.setVisibility(View.INVISIBLE);
+			mParent.addView(mStickerSection, mLayoutParams);
 		}
 	}
 
@@ -219,8 +223,7 @@ public class StickySectionListView extends ListView {
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if (isStickyScroll) {
-				createSticker(firstVisibleItem);
-				catchNextSection(firstVisibleItem);
+				checkAndCreateSticker(firstVisibleItem);
 			}
 
 			if (internalOnScrollListener != null) {
