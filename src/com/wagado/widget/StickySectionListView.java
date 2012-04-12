@@ -158,7 +158,6 @@ public class StickySectionListView extends ListView {
 			if (mStickerSection != null) {
 				mParent.removeView(mStickerSection);
 
-				mStickerSection.setDrawingCacheEnabled(true);
 				mStickerSection.setVisibility(View.INVISIBLE);
 
 				mParent.addView(mStickerSection, mLayoutParams);
