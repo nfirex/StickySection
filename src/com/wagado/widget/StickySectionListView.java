@@ -19,6 +19,7 @@ package com.wagado.widget;
 import ru.camino.parts.adapter.SectionListAdapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -37,6 +38,7 @@ public class StickySectionListView extends ListView {
 	private ViewGroup mParent;
 	private ViewGroup.LayoutParams mLayoutParams;
 	private SectionListAdapter mAdapter;
+	private Bitmap mStickerBitmap;
 
 	private boolean isStickyScroll;
 
@@ -156,15 +158,21 @@ public class StickySectionListView extends ListView {
 	 * @param position - position of item at ListView
 	 */
 	protected void createSticker (int section) {
+		if (mStickerBitmap != null) {
+			mStickerBitmap.recycle();
+			mStickerBitmap = null;
+		}
+
 		if (section == INVALID_POSITION) {
 			mStickerSection = null;
 		} else {
 			mStickerSection = getAdapter().getView(section, mStickerSection, null);
+			mStickerSection.setVisibility(View.INVISIBLE);
+			mStickerBitmap = getBitmap(mStickerSection);
 		}
 
 		if (mStickerSection != null) {
 			mParent.removeView(mStickerSection);
-			mStickerSection.setVisibility(View.INVISIBLE);
 			mParent.addView(mStickerSection, mLayoutParams);
 		}
 	}
@@ -189,7 +197,7 @@ public class StickySectionListView extends ListView {
 	protected void calculateStickerMargin () {
 		if (mNextSectionChild != INVALID_POSITION) {
 			final int top = getChildAt(mNextSectionChild).getTop();
-			final int height = mStickerSection.getHeight();
+			final int height = mStickerBitmap.getHeight();
 
 			if (top < 0 || top > height) {
 				mStickerMargin = 0;
@@ -206,9 +214,30 @@ public class StickySectionListView extends ListView {
 	 * @param canvas - Canvas for ListView, his child and blahblahblah
 	 */
 	protected void drawSticker(Canvas canvas) {
-		canvas.translate(0, mStickerMargin);
-		mStickerSection.draw(canvas);
-		canvas.translate(0, - mStickerMargin);
+		if (mStickerSection.getHeight() == 0) {
+			canvas.drawBitmap(mStickerBitmap, 0, mStickerMargin, null);
+		} else {
+			canvas.translate(0, mStickerMargin);
+			mStickerSection.draw(canvas);
+			canvas.translate(0, - mStickerMargin);
+		}
+	}
+
+	/**
+	 * Get Bitmap from hidden View
+	 * @param view - View from which the Bitmap will create
+	 */
+	protected Bitmap getBitmap(View view) {
+		view.setDrawingCacheEnabled(true);
+		view.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+		view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight()); 
+		view.buildDrawingCache(true);
+
+		final Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache(true));
+
+		view.setDrawingCacheEnabled(false);
+
+		return bitmap;
 	}
 
 
