@@ -20,6 +20,7 @@ import ru.camino.parts.adapter.SectionListAdapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -79,6 +80,10 @@ public class StickySectionListView extends ListView {
 			mParent = null;
 			mLayoutParams = null;
 			mStickerSection = null;
+			if (mStickerBitmap != null) {
+				mStickerBitmap.recycle();
+			}
+			mStickerBitmap = null;
 		}
 	}
 
@@ -214,13 +219,7 @@ public class StickySectionListView extends ListView {
 	 * @param canvas - Canvas for ListView, his child and blahblahblah
 	 */
 	protected void drawSticker(Canvas canvas) {
-		if (mStickerSection.getHeight() == 0) {
-			canvas.drawBitmap(mStickerBitmap, 0, mStickerMargin, null);
-		} else {
-			canvas.translate(0, mStickerMargin);
-			mStickerSection.draw(canvas);
-			canvas.translate(0, - mStickerMargin);
-		}
+		canvas.drawBitmap(mStickerBitmap, 0, mStickerMargin, null);
 	}
 
 	/**
@@ -230,10 +229,10 @@ public class StickySectionListView extends ListView {
 	protected Bitmap getBitmap(View view) {
 		view.setDrawingCacheEnabled(true);
 		view.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-		view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight()); 
+		view.layout(0, 0, getWidth(), view.getMeasuredHeight()); 
 		view.buildDrawingCache(true);
 
-		final Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache(true));
+		final Bitmap bitmap = view.getDrawingCache(true).copy(Config.ARGB_8888, true);
 
 		view.setDrawingCacheEnabled(false);
 
