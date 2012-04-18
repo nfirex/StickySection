@@ -34,20 +34,12 @@ import android.widget.ListView;
 public class StickySectionListView extends ListView {
 	protected static final String TAG = "StickySectionListView";
 
-	private View mStickerSection;
-
-	private ViewGroup mParent;
-	private ViewGroup.LayoutParams mLayoutParams;
-	private SectionListAdapter mAdapter;
-	private Bitmap mStickerBitmap;
-
-	private boolean isStickyScroll;
-
-	private int mStickerMargin;
-	private int mCurrentSection;
 	private int mNextSectionChild;
+	private boolean isStickyScroll;
+	private SectionListAdapter mAdapter;
 
-	private final StickyScrollListener mStickyScrollListener; 
+	private final ListSticker mSticker;
+	private final StickyScrollListener mStickyScrollListener;
 
 	public StickySectionListView(Context context) {
 		this(context, null);
@@ -60,6 +52,7 @@ public class StickySectionListView extends ListView {
 	public StickySectionListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
+		mSticker = new ListSticker(context, this);
 		mStickyScrollListener = new StickyScrollListener();
 		super.setOnScrollListener(mStickyScrollListener);
 	}
@@ -70,20 +63,11 @@ public class StickySectionListView extends ListView {
 
 		if (adapter instanceof SectionListAdapter) {
 			isStickyScroll = true;
-			mCurrentSection = INVALID_POSITION;
 			mAdapter = (SectionListAdapter) adapter;
-			mParent = (ViewGroup) getParent();
-			mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		} else {
 			isStickyScroll = false;
 			mAdapter = null;
-			mParent = null;
-			mLayoutParams = null;
-			mStickerSection = null;
-			if (mStickerBitmap != null) {
-				mStickerBitmap.recycle();
-			}
-			mStickerBitmap = null;
+			mSticker.clear();
 		}
 	}
 
@@ -103,10 +87,14 @@ public class StickySectionListView extends ListView {
 	protected void dispatchDraw(Canvas canvas) {
 		super.dispatchDraw(canvas);
 
-		if (mStickerSection != null) {
-			calculateStickerMargin();
-			drawSticker(canvas);
-		}
+		mSticker.onDraw(canvas);
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+
+		mSticker.onSizeChanged(w, h, oldw, oldh);
 	}
 
 	@Override
@@ -115,13 +103,13 @@ public class StickySectionListView extends ListView {
 
 		super.onRestoreInstanceState(savedState.getSuperState());
 
-		createSticker(savedState.currentStickerSection);
+		mSticker.createSticker(savedState.currentStickerSection);
 	}
 
 	@Override
 	public Parcelable onSaveInstanceState() {
 		final SavedState savedState = new SavedState(super.onSaveInstanceState());
-		savedState.currentStickerSection = mCurrentSection;
+		savedState.currentStickerSection = mSticker.getSectionPosition();
 
 		return savedState;
 	}
@@ -137,8 +125,11 @@ public class StickySectionListView extends ListView {
 		int result = INVALID_POSITION;
 
 		for (int i: (mAdapter.getHeaders().keySet())) {
-			if (position < i) break;
-			else result = i;
+			if (position < i) {
+				break;
+			}
+
+			result = i;
 		}
 
 		return result;
@@ -150,36 +141,12 @@ public class StickySectionListView extends ListView {
 	 */
 	protected void checkAndCreateSticker (int position) {
 		final int section = getSectionByPosition(position);
-		if (mCurrentSection != section) {
-			mCurrentSection = section;
-			createSticker(mCurrentSection);
+
+		if (mSticker.getSectionPosition() != section) {
+			mSticker.createSticker(section);
 		}
 
 		catchNextSection(position);
-	}
-
-	/**
-	 * Recreate sticker (or null it)
-	 * @param position - position of item at ListView
-	 */
-	protected void createSticker (int section) {
-		if (mStickerBitmap != null) {
-			mStickerBitmap.recycle();
-			mStickerBitmap = null;
-		}
-
-		if (section == INVALID_POSITION) {
-			mStickerSection = null;
-		} else {
-			mStickerSection = getAdapter().getView(section, mStickerSection, null);
-			mStickerSection.setVisibility(View.INVISIBLE);
-			mStickerBitmap = getBitmap(mStickerSection);
-		}
-
-		if (mStickerSection != null) {
-			mParent.removeView(mStickerSection);
-			mParent.addView(mStickerSection, mLayoutParams);
-		}
 	}
 
 	/**
@@ -196,51 +163,130 @@ public class StickySectionListView extends ListView {
 		}
 	}
 
-	/**
-	 * Calculate sticker margin from top if it can shift by section
-	 */
-	protected void calculateStickerMargin () {
-		if (mNextSectionChild != INVALID_POSITION) {
-			final int top = getChildAt(mNextSectionChild).getTop();
-			final int height = mStickerBitmap.getHeight();
 
-			if (top < 0 || top > height) {
-				mStickerMargin = 0;
-			} else {
-				mStickerMargin = top - height;
+
+
+	/**
+	 * Sticky Section
+	 */
+	private class ListSticker extends ViewGroup {
+		private int mSectionPosition;
+		private int mTop;
+		private int mWidth;
+
+		private Bitmap mBitmap;
+		private View mView;
+
+		private final AbsListView mParent;
+
+		public ListSticker(Context context, AbsListView parent) {
+			super(context);
+
+			mSectionPosition = INVALID_POSITION;
+			mParent = parent;
+		}
+
+		@Override
+		protected void onLayout(boolean changed, int l, int t, int r, int b) {
+			// Nothing to do
+		}
+		@Override
+		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+			mWidth = w;
+			createSticker(mSectionPosition);
+		}
+
+		@Override
+		protected void onDraw(Canvas canvas) {
+			if (mBitmap != null) {
+				calculateStickerMargin();
+				canvas.drawBitmap(mBitmap, 0, mTop, null);
 			}
-		} else {
-			mStickerMargin = 0;
+		}
+
+
+
+
+		/**
+		 * Get current section position 
+		 */
+		public int getSectionPosition() {
+			return mSectionPosition;
+		}
+
+		/**
+		 * Recreate sticker (or null it)
+		 * @param position - position of item at ListView
+		 */
+		public void createSticker (int position) {
+			mSectionPosition = position;
+
+			if (mBitmap != null) {
+				mBitmap.recycle();
+				mBitmap = null;
+			}
+
+			if (mSectionPosition != INVALID_POSITION && mWidth > 0) {
+				if (mView == null) {
+					mView = mParent.getAdapter().getView(mSectionPosition, null, null);
+					mView.setDrawingCacheEnabled(true);
+					addView(mView);
+				} else {
+					mParent.getAdapter().getView(mSectionPosition, mView, this);
+				}
+
+				mBitmap = getBitmap(mView);
+			}
+		}
+
+		/**
+		 * Destroy Bitmap and View of sticker
+		 */
+		public void clear() {
+			if (mView != null) {
+				mView.setDrawingCacheEnabled(false);
+				removeView(mView);
+				mView = null;
+			}
+
+			if (mBitmap != null) {
+				mBitmap.recycle();
+				mBitmap = null;
+			}
+		}
+
+
+
+
+		/**
+		 * Get Bitmap from hidden View
+		 * @param view - View from which the Bitmap will create
+		 */
+		private Bitmap getBitmap(View view) {
+			view.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+			view.layout(0, 0, mWidth, view.getMeasuredHeight());
+
+			return view.getDrawingCache(true).copy(Config.ARGB_8888, true);
+		}
+
+		/**
+		 * Calculate sticker margin from top if it can shift by section
+		 */
+		private void calculateStickerMargin () {
+			if (mNextSectionChild != INVALID_POSITION) {
+				final int nextTop = StickySectionListView.this.getChildAt(mNextSectionChild).getTop();
+				final int height = mBitmap.getHeight();
+
+				if (nextTop < 0 || nextTop > height) {
+					mTop = 0;
+				} else {
+					mTop = nextTop - height;
+				}
+			} else {
+				mTop = 0;
+			}
 		}
 	}
-
-	/**
-	 * Draw sticker at ListView's Canvas after drawing a children of ListView
-	 * @param canvas - Canvas for ListView, his child and blahblahblah
-	 */
-	protected void drawSticker(Canvas canvas) {
-		canvas.drawBitmap(mStickerBitmap, 0, mStickerMargin, null);
-	}
-
-	/**
-	 * Get Bitmap from hidden View
-	 * @param view - View from which the Bitmap will create
-	 */
-	protected Bitmap getBitmap(View view) {
-		view.setDrawingCacheEnabled(true);
-		view.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-		view.layout(0, 0, getWidth(), view.getMeasuredHeight()); 
-		view.buildDrawingCache(true);
-
-		final Bitmap bitmap = view.getDrawingCache(true).copy(Config.ARGB_8888, true);
-
-		view.setDrawingCacheEnabled(false);
-
-		return bitmap;
-	}
-
-
-
 
 	/**
 	 * OnScrollListener for tracking changes of children's positions
@@ -266,6 +312,9 @@ public class StickySectionListView extends ListView {
 			}
 		}
 
+		/**
+		 * Set internal OnScrollListener
+		 */
 		public void setInternalScrollListener (OnScrollListener listener) {
 			internalOnScrollListener = listener;
 		}
@@ -281,6 +330,9 @@ public class StickySectionListView extends ListView {
 			super(superState);
 		}
 
+		/**
+		 * Set internal OnScrollListener
+		 */
 		private SavedState(Parcel in) {
 			super(in);
 			currentStickerSection = in.readInt();
