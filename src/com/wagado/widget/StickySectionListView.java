@@ -91,6 +91,15 @@ public class StickySectionListView extends ListView {
 	}
 
 	@Override
+	protected float getTopFadingEdgeStrength() {
+		if (mSticker.isSticked()) {
+			return 0;
+		} else {
+			return super.getTopFadingEdgeStrength();
+		}
+	}
+
+	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
 
@@ -212,6 +221,13 @@ public class StickySectionListView extends ListView {
 		 */
 		public int getSectionPosition() {
 			return mSectionPosition;
+		}
+
+		/**
+		 * Is Sticker on top of List
+		 */
+		public boolean isSticked() {
+			return mBitmap != null;
 		}
 
 		/**
