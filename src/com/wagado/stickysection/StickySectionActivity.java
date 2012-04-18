@@ -34,6 +34,7 @@ public class StickySectionActivity extends ListActivity {
 				list.add("element #" + Integer.toString(i));
 			}
 			adapter = createAdapter(new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, android.R.id.text1, list));
+//			adapter = createAdapter(new ArrayAdapter<String>(getBaseContext(), android.R.layout.preference_category, android.R.id.title, list));
 		}
 
 		mListView.setAdapter(adapter);
@@ -55,7 +56,7 @@ public class StickySectionActivity extends ListActivity {
 			public Object detectSection(Object arg0, Object arg1) {
 				String title = null;
 
-				if (count % portion == 0) {
+				if (count % portion == 0 && count > 0) {
 					title = "section for " + Integer.toString(count + 1) + "-" + Integer.toString(count +portion);
 				}
 
@@ -68,6 +69,8 @@ public class StickySectionActivity extends ListActivity {
 		return new SectionListAdapter(adapter, sectionDetector) {
 			protected final int mHeaderLayoutId = android.R.layout.preference_category;
 			protected final int mTitleTextViewId = android.R.id.title;
+//			protected final int mHeaderLayoutId = android.R.layout.simple_list_item_1;
+//			protected final int mTitleTextViewId = android.R.id.text1;
 
 			@Override
 			protected View getSectionView(Object header, View convertView, ViewGroup parent) {

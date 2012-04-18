@@ -155,20 +155,22 @@ public class StickySectionListView extends ListView {
 			mSticker.createSticker(section);
 		}
 
-		catchNextSection(position);
+		catchNextSection();
 	}
 
 	/**
 	 * Catch child index of view that can shift the sticker.
-	 * @param position - position of first view child at ListView
 	 */
-	protected void catchNextSection (int position) {
-		final int delta = 1;
-		final boolean isNextSection = mAdapter.isHeader(position + delta);
-		if (isNextSection) {
-			mNextSectionChild = delta;
-		} else {
-			mNextSectionChild = INVALID_POSITION;
+	protected void catchNextSection () {
+		mNextSectionChild = INVALID_POSITION;
+
+		int index = 0;
+		while (getChildAt(index).getTop() < mSticker.getSectionHeight()) {
+			index ++;
+			if (mAdapter.isHeader(index + getFirstVisiblePosition())) {
+				mNextSectionChild = index;
+				break;
+			}
 		}
 	}
 
@@ -182,6 +184,7 @@ public class StickySectionListView extends ListView {
 		private int mSectionPosition;
 		private int mTop;
 		private int mWidth;
+		private int mHeight;
 
 		private Bitmap mBitmap;
 		private View mView;
@@ -192,6 +195,7 @@ public class StickySectionListView extends ListView {
 			super(context);
 
 			mSectionPosition = INVALID_POSITION;
+			mHeight = INVALID_POSITION;
 			mParent = parent;
 		}
 
@@ -199,6 +203,7 @@ public class StickySectionListView extends ListView {
 		protected void onLayout(boolean changed, int l, int t, int r, int b) {
 			// Nothing to do
 		}
+
 		@Override
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 			mWidth = w;
@@ -224,6 +229,13 @@ public class StickySectionListView extends ListView {
 		}
 
 		/**
+		 * Get current section height 
+		 */
+		public int getSectionHeight() {
+			return mHeight;
+		}
+
+		/**
 		 * Is Sticker on top of List
 		 */
 		public boolean isSticked() {
@@ -240,6 +252,7 @@ public class StickySectionListView extends ListView {
 			if (mBitmap != null) {
 				mBitmap.recycle();
 				mBitmap = null;
+				mHeight = INVALID_POSITION;
 			}
 
 			if (mSectionPosition != INVALID_POSITION && mWidth > 0) {
@@ -252,6 +265,7 @@ public class StickySectionListView extends ListView {
 				}
 
 				mBitmap = getBitmap(mView);
+				mHeight = mBitmap.getHeight();
 			}
 		}
 
@@ -290,13 +304,13 @@ public class StickySectionListView extends ListView {
 		 */
 		private void calculateStickerMargin () {
 			if (mNextSectionChild != INVALID_POSITION) {
-				final int nextTop = StickySectionListView.this.getChildAt(mNextSectionChild).getTop();
-				final int height = mBitmap.getHeight();
+				final int nextTop = mParent.getChildAt(mNextSectionChild).getTop();
+//				final int height = mHeight;
 
-				if (nextTop < 0 || nextTop > height) {
+				if (nextTop < 0 || nextTop > mHeight) {
 					mTop = 0;
 				} else {
-					mTop = nextTop - height;
+					mTop = nextTop - mHeight;
 				}
 			} else {
 				mTop = 0;
