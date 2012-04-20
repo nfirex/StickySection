@@ -92,11 +92,11 @@ public class StickySectionListView extends ListView {
 
 	@Override
 	protected float getTopFadingEdgeStrength() {
-		if (mSticker.isSticked()) {
+		if (isStickyScroll) {
 			return 0;
-		} else {
-			return super.getTopFadingEdgeStrength();
 		}
+
+		return super.getTopFadingEdgeStrength();
 	}
 
 	@Override
@@ -195,7 +195,6 @@ public class StickySectionListView extends ListView {
 			super(context);
 
 			mSectionPosition = INVALID_POSITION;
-			mHeight = INVALID_POSITION;
 			mParent = parent;
 		}
 
@@ -236,13 +235,6 @@ public class StickySectionListView extends ListView {
 		}
 
 		/**
-		 * Is Sticker on top of List
-		 */
-		public boolean isSticked() {
-			return mBitmap != null;
-		}
-
-		/**
 		 * Recreate sticker (or null it)
 		 * @param position - position of item at ListView
 		 */
@@ -252,7 +244,7 @@ public class StickySectionListView extends ListView {
 			if (mBitmap != null) {
 				mBitmap.recycle();
 				mBitmap = null;
-				mHeight = INVALID_POSITION;
+				mHeight = 0;
 			}
 
 			if (mSectionPosition != INVALID_POSITION && mWidth > 0) {
@@ -304,13 +296,12 @@ public class StickySectionListView extends ListView {
 		 */
 		private void calculateStickerMargin () {
 			if (mNextSectionChild != INVALID_POSITION) {
-				final int nextTop = mParent.getChildAt(mNextSectionChild).getTop();
-//				final int height = mHeight;
+				final int top = mParent.getChildAt(mNextSectionChild).getTop();
 
-				if (nextTop < 0 || nextTop > mHeight) {
+				if (top < 0 || top > getSectionHeight()) {
 					mTop = 0;
 				} else {
-					mTop = nextTop - mHeight;
+					mTop = top - getSectionHeight();
 				}
 			} else {
 				mTop = 0;
