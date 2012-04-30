@@ -288,7 +288,7 @@ public class StickySectionListView extends ListView {
 			view.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
 			view.layout(0, 0, mWidth, view.getMeasuredHeight());
 
-			return view.getDrawingCache(true).copy(Config.ARGB_8888, true);
+			return view.getDrawingCache(true).copy(Config.ARGB_8888, false);
 		}
 
 		/**
