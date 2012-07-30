@@ -164,6 +164,10 @@ public class StickySectionListView extends ListView {
 	protected void catchNextSection () {
 		mNextSectionChild = INVALID_POSITION;
 
+		if (getChildCount() == 0) {
+			return;
+		}
+
 		int index = 0;
 		while (getChildAt(index).getTop() < mSticker.getSectionHeight()) {
 			index ++;
