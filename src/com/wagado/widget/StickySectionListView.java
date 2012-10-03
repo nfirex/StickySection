@@ -25,6 +25,7 @@ import android.graphics.Canvas;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -349,23 +350,25 @@ public class StickySectionListView extends ListView {
 	 * Class for saving data about sticker if Activity change the state (rotate a screen for example)
 	 */
 	private class SavedState extends BaseSavedState {
+		SparseBooleanArray checkState;
 		int currentStickerSection;
 
 		SavedState(Parcelable superState) {
 			super(superState);
+			this.checkState = getCheckedItemPositions();
+			this.currentStickerSection = 0;
 		}
 
-		/**
-		 * Set internal OnScrollListener
-		 */
 		private SavedState(Parcel in) {
 			super(in);
+			checkState = in.readSparseBooleanArray();
 			currentStickerSection = in.readInt();
 		}
 
 		@Override
 		public void writeToParcel(Parcel out, int flags) {
 			super.writeToParcel(out, flags);
+			out.writeSparseBooleanArray(checkState);
 			out.writeInt(currentStickerSection);
 		}
 
