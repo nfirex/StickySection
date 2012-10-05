@@ -2,7 +2,7 @@
 An attempt to copy a ListView with sticky sections of iPhone.
 
 {|
-! align="center"| iOs
+! align="center"| iOS
 ! Android OS
 |-
 | [[File:https://github.com/downloads/nfirex/StickySection/stickysectionlistview_iphone.png]]
@@ -10,11 +10,10 @@ An attempt to copy a ListView with sticky sections of iPhone.
 |}
 
 == Dependencies ==
-This project requires the [https://github.com/MikeCamino/CaminoParts SectionListAdapter (by Camino)]. You can found a copy of a compatible .jar in the 
-"libs" of the project. Or you can override all and use SectionIndexer interface, for example.
+This project requires only Android default widgets.
 
 == Usage ==
-After '''StickyListView''' creating you must use '''setAdapter(''yourAdapter'')''' method. ''yourAdapter'' must extends a '''StickyListAdapter''' by Camino, otherway '''StickySectionListView''' will work like defult '''ListView'''.
+After '''StickyListView''' creating you must use '''setAdapter(''yourAdapter'')''' method. ''yourAdapter'' must implements a '''SectionIndexer''', otherway '''StickySectionListView''' will work like default '''ListView'''.
 
 '''StickySectionListView''' is a single class in src/com/wagado/widget/StickySectionListView.class. You can export only this class as .jar or copy in you project source.
 

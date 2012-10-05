@@ -16,8 +16,6 @@
 
 package com.wagado.widget;
 
-import ru.camino.parts.adapter.SectionListAdapter;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -31,13 +29,14 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 
 public class StickySectionListView extends ListView {
 	protected static final String TAG = "StickySectionListView";
 
 	private int mNextSectionChild;
 	private boolean isStickyScroll;
-	private SectionListAdapter mAdapter;
+	private SectionIndexer mAdapter;
 
 	private final ListSticker mSticker;
 	private final StickyScrollListener mStickyScrollListener;
@@ -62,9 +61,10 @@ public class StickySectionListView extends ListView {
 	public void setAdapter(ListAdapter adapter) {
 		super.setAdapter(adapter);
 
-		if (adapter instanceof SectionListAdapter) {
+		if (adapter instanceof SectionIndexer) {
 			isStickyScroll = true;
-			mAdapter = (SectionListAdapter) adapter;
+			mAdapter = (SectionIndexer) adapter;
+			mSticker.refresh(mAdapter);
 		} else {
 			isStickyScroll = false;
 			mAdapter = null;
@@ -119,9 +119,18 @@ public class StickySectionListView extends ListView {
 	@Override
 	public Parcelable onSaveInstanceState() {
 		final SavedState savedState = new SavedState(super.onSaveInstanceState());
-		savedState.currentStickerSection = mSticker.getSectionPosition();
+		savedState.currentStickerSection = mSticker.position;
 
 		return savedState;
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		if (isStickyScroll) {
+			mSticker.refresh(mAdapter);
+		}
+
+		super.onLayout(changed, l, t, r, b);
 	}
 
 
@@ -132,17 +141,23 @@ public class StickySectionListView extends ListView {
 	 * @param position - position of element
 	 */
 	protected int getSectionByPosition(int position) {
-		int result = INVALID_POSITION;
+		if (position < mSticker.firstSectionPosition) {
+			return INVALID_POSITION;
+		} else {
+			int result = mAdapter.getPositionForSection(0);
 
-		for (int i: (mAdapter.getHeaders().keySet())) {
-			if (position < i) {
-				break;
+			for (int i = 1; i < mSticker.count; i ++) {
+				final int section = mAdapter.getPositionForSection(i);
+
+				if (position < section) {
+					break;
+				}
+
+				result = section;
 			}
 
-			result = i;
+			return result;
 		}
-
-		return result;
 	}
 
 	/**
@@ -152,7 +167,7 @@ public class StickySectionListView extends ListView {
 	protected void checkAndCreateSticker (int position) {
 		final int section = getSectionByPosition(position);
 
-		if (mSticker.getSectionPosition() != section) {
+		if (mSticker.position != section) {
 			mSticker.createSticker(section);
 		}
 
@@ -172,7 +187,10 @@ public class StickySectionListView extends ListView {
 		int index = 0;
 		while (getChildAt(index).getTop() < mSticker.getSectionHeight()) {
 			index ++;
-			if (mAdapter.isHeader(index + getFirstVisiblePosition())) {
+			final int position = getFirstVisiblePosition() + index;
+			final int section = mAdapter.getSectionForPosition(position);
+
+			if (mAdapter.getPositionForSection(section) == position) {
 				mNextSectionChild = index;
 				break;
 			}
@@ -186,7 +204,10 @@ public class StickySectionListView extends ListView {
 	 * Sticky Section
 	 */
 	private class ListSticker extends ViewGroup {
-		private int mSectionPosition;
+		public int count;
+		public int position;
+		public int firstSectionPosition;
+
 		private int mTop;
 		private int mWidth;
 		private int mHeight;
@@ -199,7 +220,8 @@ public class StickySectionListView extends ListView {
 		public ListSticker(Context context, AbsListView parent) {
 			super(context);
 
-			mSectionPosition = INVALID_POSITION;
+			position = INVALID_POSITION;
+			firstSectionPosition = INVALID_POSITION;
 			mParent = parent;
 		}
 
@@ -211,7 +233,7 @@ public class StickySectionListView extends ListView {
 		@Override
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 			mWidth = w;
-			createSticker(mSectionPosition);
+			createSticker(position);
 		}
 
 		@Override
@@ -225,11 +247,9 @@ public class StickySectionListView extends ListView {
 
 
 
-		/**
-		 * Get current section position 
-		 */
-		public int getSectionPosition() {
-			return mSectionPosition;
+		public void refresh(SectionIndexer adapter) {
+			count = mAdapter.getSections().length;
+			firstSectionPosition = mAdapter.getPositionForSection(0);
 		}
 
 		/**
@@ -244,7 +264,7 @@ public class StickySectionListView extends ListView {
 		 * @param position - position of item at ListView
 		 */
 		public void createSticker (int position) {
-			mSectionPosition = position;
+			this.position = position;
 
 			if (mBitmap != null) {
 				mBitmap.recycle();
@@ -252,13 +272,13 @@ public class StickySectionListView extends ListView {
 				mHeight = 0;
 			}
 
-			if (mSectionPosition != INVALID_POSITION && mWidth > 0) {
+			if (position != INVALID_POSITION && mWidth > 0) {
 				if (mView == null) {
-					mView = mParent.getAdapter().getView(mSectionPosition, null, null);
+					mView = mParent.getAdapter().getView(position, null, null);
 					mView.setDrawingCacheEnabled(true);
 					addView(mView);
 				} else {
-					mParent.getAdapter().getView(mSectionPosition, mView, this);
+					mParent.getAdapter().getView(position, mView, this);
 				}
 
 				mBitmap = getBitmap(mView);
