@@ -93,11 +93,7 @@ public class StickySectionListView extends ListView {
 
 	@Override
 	protected float getTopFadingEdgeStrength() {
-		if (isStickyScroll) {
-			return 0;
-		}
-
-		return super.getTopFadingEdgeStrength();
+		return getFirstVisiblePosition() < mSticker.firstSectionPosition ? super.getTopFadingEdgeStrength() : 0;
 	}
 
 	@Override
@@ -144,7 +140,7 @@ public class StickySectionListView extends ListView {
 		if (position < mSticker.firstSectionPosition) {
 			return INVALID_POSITION;
 		} else {
-			int result = mAdapter.getPositionForSection(0);
+			int result = mSticker.firstSectionPosition;
 
 			for (int i = 1; i < mSticker.count; i ++) {
 				final int section = mAdapter.getPositionForSection(i);
@@ -180,7 +176,7 @@ public class StickySectionListView extends ListView {
 	protected void catchNextSection () {
 		mNextSectionChild = INVALID_POSITION;
 
-		if (getChildCount() == 0) {
+		if (getChildCount() == 0 || mSticker.count == 0) {
 			return;
 		}
 
@@ -248,8 +244,10 @@ public class StickySectionListView extends ListView {
 
 
 		public void refresh(SectionIndexer adapter) {
-			count = mAdapter.getSections().length;
-			firstSectionPosition = mAdapter.getPositionForSection(0);
+			final Object[] sections = mAdapter.getSections();
+			count = sections == null ? 0 : mAdapter.getSections().length;
+
+			firstSectionPosition = count == 0 ? INVALID_POSITION : mAdapter.getPositionForSection(0);
 		}
 
 		/**
