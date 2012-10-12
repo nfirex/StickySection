@@ -105,8 +105,8 @@ public class StickySectionListView extends ListView {
 	@Override
 	public void onRestoreInstanceState(Parcelable state) {
 		final SavedState savedState = (SavedState) state;
-		super.onRestoreInstanceState(savedState.getSuperState());
 		mSticker.createSticker(savedState.currentStickerSection);
+		super.onRestoreInstanceState(savedState.getSuperState());
 	}
 
 	@Override
