@@ -105,9 +105,8 @@ public class StickySectionListView extends ListView {
 	@Override
 	public void onRestoreInstanceState(Parcelable state) {
 		final SavedState savedState = (SavedState) state;
-		mSticker.createSticker(savedState.currentStickerSection);
-
 		super.onRestoreInstanceState(savedState.getSuperState());
+		mSticker.createSticker(savedState.currentStickerSection);
 	}
 
 	@Override
@@ -391,10 +390,9 @@ public class StickySectionListView extends ListView {
 
 		@Override
 		public void writeToParcel(Parcel out, int flags) {
+			super.writeToParcel(out, flags);
 			out.writeSparseBooleanArray(checkState);
 			out.writeInt(currentStickerSection);
-
-			super.writeToParcel(out, flags);
 		}
 
 		@Override
