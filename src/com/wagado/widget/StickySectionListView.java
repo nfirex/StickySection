@@ -64,7 +64,6 @@ public class StickySectionListView extends ListView {
 		if (adapter instanceof SectionIndexer) {
 			isStickyScroll = true;
 			mAdapter = (SectionIndexer) adapter;
-			mSticker.refresh(mAdapter);
 		} else {
 			isStickyScroll = false;
 			mAdapter = null;
@@ -106,10 +105,9 @@ public class StickySectionListView extends ListView {
 	@Override
 	public void onRestoreInstanceState(Parcelable state) {
 		final SavedState savedState = (SavedState) state;
+		mSticker.createSticker(savedState.currentStickerSection);
 
 		super.onRestoreInstanceState(savedState.getSuperState());
-
-		mSticker.createSticker(savedState.currentStickerSection);
 	}
 
 	@Override
@@ -121,12 +119,12 @@ public class StickySectionListView extends ListView {
 	}
 
 	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+	public void requestLayout() {
 		if (isStickyScroll) {
-			mSticker.refresh(mAdapter);
+			mSticker.refresh();
 		}
 
-		super.onLayout(changed, l, t, r, b);
+		super.requestLayout();
 	}
 
 
@@ -243,11 +241,17 @@ public class StickySectionListView extends ListView {
 
 
 
-		public void refresh(SectionIndexer adapter) {
+		/**
+		 * Update sticker and data
+		 */
+		public void refresh() {
+			clear();
+
 			final Object[] sections = mAdapter.getSections();
 			count = sections == null ? 0 : mAdapter.getSections().length;
-
 			firstSectionPosition = count == 0 ? INVALID_POSITION : mAdapter.getPositionForSection(0);
+
+			createSticker(position);
 		}
 
 		/**
@@ -264,23 +268,25 @@ public class StickySectionListView extends ListView {
 		public void createSticker (int position) {
 			this.position = position;
 
-			if (mBitmap != null) {
-				mBitmap.recycle();
-				mBitmap = null;
-				mHeight = 0;
-			}
-
-			if (position != INVALID_POSITION && mWidth > 0) {
-				if (mView == null) {
-					mView = mParent.getAdapter().getView(position, null, null);
-					mView.setDrawingCacheEnabled(true);
-					addView(mView);
-				} else {
-					mParent.getAdapter().getView(position, mView, this);
+			if (count > 0) {
+				if (mBitmap != null) {
+					mBitmap.recycle();
+					mBitmap = null;
+					mHeight = 0;
 				}
 
-				mBitmap = getBitmap(mView);
-				mHeight = mBitmap.getHeight();
+				if (position != INVALID_POSITION && mWidth > 0) {
+					if (mView == null) {
+						mView = mParent.getAdapter().getView(position, null, null);
+						mView.setDrawingCacheEnabled(true);
+						addView(mView);
+					} else {
+						mParent.getAdapter().getView(position, mView, this);
+					}
+
+					mBitmap = getBitmap(mView);
+					mHeight = mBitmap.getHeight();
+				}
 			}
 		}
 
@@ -385,9 +391,10 @@ public class StickySectionListView extends ListView {
 
 		@Override
 		public void writeToParcel(Parcel out, int flags) {
-			super.writeToParcel(out, flags);
 			out.writeSparseBooleanArray(checkState);
 			out.writeInt(currentStickerSection);
+
+			super.writeToParcel(out, flags);
 		}
 
 		@Override
