@@ -8,11 +8,13 @@ import com.wagado.widget.StickySectionListView;
 import ru.camino.parts.adapter.SectionListAdapter;
 import ru.camino.parts.adapter.SectionListAdapter.SectionDetector;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class StickySectionActivity extends ListActivity {
@@ -37,8 +39,14 @@ public class StickySectionActivity extends ListActivity {
 //			adapter = createAdapter(new ArrayAdapter<String>(getBaseContext(), android.R.layout.preference_category, android.R.id.title, list));
 		}
 
-		mListView.setAdapter(adapter);
+		setListAdapter(adapter);
 		mListView.setFastScrollEnabled(true);
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		final Intent intent = new Intent(getBaseContext(), StickySectionActivity.class);
+		startActivity(intent);
 	}
 
 	@Override

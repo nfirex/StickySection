@@ -103,21 +103,6 @@ public class StickySectionListView extends ListView {
 	}
 
 	@Override
-	public void onRestoreInstanceState(Parcelable state) {
-		final SavedState savedState = (SavedState) state;
-		mSticker.createSticker(savedState.currentStickerSection);
-		super.onRestoreInstanceState(savedState.getSuperState());
-	}
-
-	@Override
-	public Parcelable onSaveInstanceState() {
-		final SavedState savedState = new SavedState(super.onSaveInstanceState());
-		savedState.currentStickerSection = mSticker.position;
-
-		return savedState;
-	}
-
-	@Override
 	public void requestLayout() {
 		if (isStickyScroll) {
 			mSticker.refresh();
@@ -370,28 +355,24 @@ public class StickySectionListView extends ListView {
 	};
 
 	/**
-	 * Class for saving data about sticker if Activity change the state (rotate a screen for example)
+	 * Class for saving data about sticker if Activity change the state (rotate a screen for example or crash)
 	 */
-	private class SavedState extends BaseSavedState {
-		SparseBooleanArray checkState;
+	static class SavedState extends BaseSavedState {
 		int currentStickerSection;
 
-		SavedState(Parcelable superState) {
+		SavedState(Parcelable superState, int currentSticker) {
 			super(superState);
-			this.checkState = getCheckedItemPositions();
-			this.currentStickerSection = 0;
+			this.currentStickerSection = currentSticker;
 		}
 
 		private SavedState(Parcel in) {
 			super(in);
-			checkState = in.readSparseBooleanArray();
 			currentStickerSection = in.readInt();
 		}
 
 		@Override
 		public void writeToParcel(Parcel out, int flags) {
 			super.writeToParcel(out, flags);
-			out.writeSparseBooleanArray(checkState);
 			out.writeInt(currentStickerSection);
 		}
 
@@ -399,5 +380,28 @@ public class StickySectionListView extends ListView {
 		public String toString() {
 			return TAG + ".SavedState{currentStickerSection=" + Integer.toString(currentStickerSection) + "}";
 		}
+
+		public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+			public SavedState createFromParcel(Parcel in) {
+				return new SavedState(in);
+			}
+
+			public SavedState[] newArray(int size) {
+				return new SavedState[size];
+			}
+		};
+	}
+
+	@Override
+	public void onRestoreInstanceState(Parcelable state) {
+		final SavedState savedState = (SavedState) state;
+		super.onRestoreInstanceState(savedState.getSuperState());
+
+		mSticker.createSticker(savedState.currentStickerSection);
+	}
+
+	@Override
+	public Parcelable onSaveInstanceState() {
+		return new SavedState(super.onSaveInstanceState(), mSticker.position);
 	}
 }
